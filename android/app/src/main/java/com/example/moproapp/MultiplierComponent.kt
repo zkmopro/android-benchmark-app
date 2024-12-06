@@ -31,7 +31,15 @@ fun MultiplierComponent() {
     inputs["a"] = listOf("3")
     inputs["b"] = listOf("5")
 
-    val zkeyPath = getFilePathFromAssets("multiplier2_final.zkey")
+    var keccak256Inputs = getKeccak256Inputs()
+    var sha256Inputs = getSha256Inputs()
+    var rsaInputs = getRSAInputs()
+    var semaphoreInputs = getSemaphoreInputs()
+
+    val keccak256ZkeyPath = getFilePathFromAssets("keccak256_256_test_final.zkey")
+    val sha256ZkeyPath = getFilePathFromAssets("sha256_512_final.zkey")
+    val rsaZkeyPath = getFilePathFromAssets("rsa_main_final.zkey")
+    val semaphoreZkeyPath = getFilePathFromAssets("semaphore-32.zkey")
 
     Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
         Button(
@@ -39,7 +47,7 @@ fun MultiplierComponent() {
                 Thread(
                     Runnable {
                         val startTime = System.currentTimeMillis()
-                        res = generateCircomProof(zkeyPath, inputs)
+                        res = generateCircomProof(rsaZkeyPath, rsaInputs)
                         val endTime = System.currentTimeMillis()
                         provingTime = "proving time: " + (endTime - startTime).toString() + " ms"
                     }
@@ -50,10 +58,10 @@ fun MultiplierComponent() {
         Button(
             onClick = {
                 val startTime = System.currentTimeMillis()
-                valid = "valid: " + verifyCircomProof(zkeyPath, res.proof, res.inputs).toString()
+                valid = "valid: " + verifyCircomProof(rsaZkeyPath, res.proof, res.inputs).toString()
                 val endTime = System.currentTimeMillis()
                 verifyingTime = "verifying time: " + (endTime - startTime).toString() + " ms"
-                output = "output: " + uniffi.mopro.toEthereumInputs(res.inputs)
+                //output = "output: " + uniffi.mopro.toEthereumInputs(res.inputs)
             },
             modifier = Modifier.padding(top = 120.dp)
         ) { Text(text = "verify proof") }
