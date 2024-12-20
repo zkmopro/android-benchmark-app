@@ -1,3 +1,8 @@
+import java.io.BufferedInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+
 public fun getKeccak256Inputs(): MutableMap<String, List<String>> {
     var input = mutableMapOf<String, List<String>>()
     input["in"] = listOf(
@@ -900,4 +905,82 @@ public fun getSemaphoreInputs(): MutableMap<String, List<String>> {
     inputs["scope"] = listOf("32")
     inputs["message"] = listOf("43")
     return inputs
+}
+
+data class CircuitInputs(
+    val circuitBuffer: ByteArray,
+    val circuitSize: Long,
+    val jsonBuffer: ByteArray,
+    val jsonSize: Long,
+    val wtnsBuffer: ByteArray,
+    val wtnsSize: LongArray,
+    val errorMsg: ByteArray,
+    val errorMsgMaxSize: Long,
+    val pubData: ByteArray,
+    val pubLen: LongArray,
+    val proofData: ByteArray,
+    val proofLen: LongArray
+)
+
+fun readFileInChunks(filePath: String, chunkSize: Int = 2048): ByteArray {
+    val file = File(filePath)
+    val outputStream = ByteArrayOutputStream()
+
+    BufferedInputStream(FileInputStream(file)).use { inputStream ->
+        val buffer = ByteArray(chunkSize)
+        var bytesRead: Int
+        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+            outputStream.write(buffer, 0, bytesRead)
+        }
+    }
+
+    return outputStream.toByteArray()
+}
+
+fun prepareCircuitInputs(
+    circuitPath: String,
+    jsonPath: String,
+): CircuitInputs {
+
+    // 1. Load circuit data into circuitBuffer
+    val circuitBuffer: ByteArray = readFileInChunks(circuitPath)
+    val circuitSize: Long = circuitBuffer.size.toLong()
+
+    // 2. Load JSON data into jsonBuffer
+    val jsonBuffer: ByteArray = readFileInChunks(jsonPath)
+    val jsonSize: Long = jsonBuffer.size.toLong()
+
+    // 3. Prepare witness buffer (initially empty)
+    val wtnsBuffer: ByteArray = ByteArray(200 * 1024 * 1024) // Allocate buffer size
+    val wtnsSize = LongArray(1)
+    wtnsSize[0] = wtnsBuffer.size.toLong()
+
+    // 4. Prepare error message buffer (initially empty)
+    val errorMsg: ByteArray = ByteArray(256) // Set buffer size
+    val errorMsgMaxSize: Long = errorMsg.size.toLong()
+
+    // 5. Prepare public data and proof buffers
+    val pubData = ByteArray(4 * 1024 * 1024)
+    val pubLen = LongArray(1)
+    pubLen[0] = pubData.size.toLong()
+
+    val proofData = ByteArray(4 * 1024 * 1024)
+    val proofLen = LongArray(1)
+    proofLen[0] = proofData.size.toLong()
+
+    // Return all prepared inputs
+    return CircuitInputs(
+        circuitBuffer,
+        circuitSize,
+        jsonBuffer,
+        jsonSize,
+        wtnsBuffer,
+        wtnsSize,
+        errorMsg,
+        errorMsgMaxSize,
+        pubData,
+        pubLen,
+        proofData,
+        proofLen
+    )
 }

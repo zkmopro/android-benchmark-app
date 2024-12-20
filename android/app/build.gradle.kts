@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.moproapp"
+        multiDexEnabled = true
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -17,6 +18,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+            }
         }
     }
 
@@ -45,6 +51,12 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
         }
     }
 }

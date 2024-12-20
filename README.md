@@ -1,64 +1,24 @@
-# Mopro example app
+# Mopro benchmark app for Android
 
-This is the example app of mopro. You can use the following commands to build native bindings for your iOS and/or Android app.
+## Download the zkeys
+- keccak256: https://ci-keys.zkmopro.org/keccak256_256_test_final.zkey
+- RSA: https://ci-keys.zkmopro.org/rsa_main_final.zkey
+- semaphore-32: https://ci-keys.zkmopro.org/semaphore-32.zkey
+- SHA256: https://ci-keys.zkmopro.org/sha256_512_final.zkey
 
-**📚 To learn more about mopro, visit: https://zkmopro.org**
+## Put the zkeys in assets folder
+- `android/app/src/main/assets`
 
-## Getting Started
-
-To set up and build bindings, follow these steps.
-
-### 1. Install the Mopro CLI Tool
-
+## Open the project in Android Studio
 ```sh
-git clone https://github.com/zkmopro/mopro
-cd mopro/cli
-cargo install --path .
+open . -a Android\ Studio
 ```
 
-### 2. Generate Native Bindings
+## Benchmark results
 
-Navigate to the Mopro example app directory, then build the bindings with:
-
-```sh
-mopro build
-```
-
-### 3. Create Platform-Specific Templates
-
-To generate templates tailored to your target platform, use:
-
-```sh
-mopro create
-```
-
-## Advanced: Customize Builds Using Rust
-
-For advanced usage, you can manually run Rust commands to build in either debug or release mode.
-
-### iOS
-
-- Debug Mode:
-    ```sh
-    cargo run --bin ios  # Debug mode
-    ```
-- Release Mode:
-    ```sh
-    CONFIGURATION=release cargo run --bin ios # Release mode
-    ```
-
-### Android
-
-- Debug Mode:
-    ```sh
-    cargo run --bin android  # Debug mode
-    ```
-- Release Mode:
-    ```sh
-    CONFIGURATION=release cargo run --bin android # Release mode
-    ```
-
-## Community
-
--   X account: <a href="https://twitter.com/zkmopro"><img src="https://img.shields.io/twitter/follow/zkmopro?style=flat-square&logo=x&label=zkmopro"></a>
--   Telegram group: <a href="https://t.me/zkmopro"><img src="https://img.shields.io/badge/telegram-@zkmopro-blue.svg?style=flat-square&logo=telegram"></a>
+| | rust-witness + ark-works (Samsung S23U) | witnesscalc + rapidsnark (Samsung S23U) |
+| --- | --- | --- |
+| keccak256 | 2.55s  | 0.867 s |
+| SHA256 | 1.73s | 0.252 s |
+| RSA | 9.53 s | 1.1 s |
+| semaphore-32 | 331 ms | 188 ms |
