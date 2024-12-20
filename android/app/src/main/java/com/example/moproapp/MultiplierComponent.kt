@@ -51,10 +51,10 @@ fun MultiplierComponent() {
     val context = LocalContext.current
     val zkpTools = ZKPTools(context)
 
-    //val keccak256ZkeyPath = getFilePathFromAssets("keccak256_256_test_final.zkey")
-    //val sha256ZkeyPath = getFilePathFromAssets("sha256_512_final.zkey")
+    val keccak256ZkeyPath = getFilePathFromAssets("keccak256_256_test_final.zkey")
+    val sha256ZkeyPath = getFilePathFromAssets("sha256_512_final.zkey")
     val rsaZkeyPath = getFilePathFromAssets("rsa_main_final.zkey")
-    //val semaphoreZkeyPath = getFilePathFromAssets("semaphore-32.zkey")
+    val semaphoreZkeyPath = getFilePathFromAssets("semaphore-32.zkey")
 
     var keccak256CircuitPath = getFilePathFromAssets(name = "keccak256_256_test.dat")
     var keccak256JsonPath = getFilePathFromAssets(name = "keccak256.json")
@@ -79,7 +79,6 @@ fun MultiplierComponent() {
                         val rapidsnarkInputs = prepareCircuitInputs(
                             rsaCircuitPath,
                             rsaJsonPath,
-                            rsaZkeyPath
                         )
                         val startTime = System.currentTimeMillis()
                         var wtnsRes = zkpTools.witnesscalcRSA(

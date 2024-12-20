@@ -940,7 +940,6 @@ fun readFileInChunks(filePath: String, chunkSize: Int = 2048): ByteArray {
 fun prepareCircuitInputs(
     circuitPath: String,
     jsonPath: String,
-    zkeyPath: String
 ): CircuitInputs {
 
     // 1. Load circuit data into circuitBuffer
