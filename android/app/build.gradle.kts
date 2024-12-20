@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.moproapp"
+        multiDexEnabled = true
         minSdk = 24
         targetSdk = 34
         versionCode = 1

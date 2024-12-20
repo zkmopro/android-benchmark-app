@@ -16,6 +16,7 @@ import com.example.moproapp.ZKPTools
 import com.example.moproapp.getFilePathFromAssets
 import uniffi.mopro.GenerateProofResult
 import uniffi.mopro.generateCircomProof
+import uniffi.mopro.toEthereumInputs
 import uniffi.mopro.verifyCircomProof
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
@@ -23,21 +24,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Paths
-
-fun readFileInChunks(filePath: String, chunkSize: Int = 2048): ByteArray {
-    val file = File(filePath)
-    val outputStream = ByteArrayOutputStream()
-
-    BufferedInputStream(FileInputStream(file)).use { inputStream ->
-        val buffer = ByteArray(chunkSize)
-        var bytesRead: Int
-        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-            outputStream.write(buffer, 0, bytesRead)
-        }
-    }
-
-    return outputStream.toByteArray()
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -65,14 +51,22 @@ fun MultiplierComponent() {
     val context = LocalContext.current
     val zkpTools = ZKPTools(context)
 
-    val keccak256ZkeyPath = getFilePathFromAssets("keccak256_256_test_final.zkey")
+    //val keccak256ZkeyPath = getFilePathFromAssets("keccak256_256_test_final.zkey")
     //val sha256ZkeyPath = getFilePathFromAssets("sha256_512_final.zkey")
-    //val rsaZkeyPath = getFilePathFromAssets("rsa_main_final.zkey")
+    val rsaZkeyPath = getFilePathFromAssets("rsa_main_final.zkey")
     //val semaphoreZkeyPath = getFilePathFromAssets("semaphore-32.zkey")
 
     var keccak256CircuitPath = getFilePathFromAssets(name = "keccak256_256_test.dat")
     var keccak256JsonPath = getFilePathFromAssets(name = "keccak256.json")
 
+    var sha256CircuitPath = getFilePathFromAssets(name = "sha256_512.dat")
+    var sha256JsonPath = getFilePathFromAssets(name = "sha256.json")
+
+    var semaphoreCircuitPath = getFilePathFromAssets(name = "semaphore.dat")
+    var semaphoreJsonPath = getFilePathFromAssets(name = "semaphore-32.json")
+
+    var rsaCircuitPath = getFilePathFromAssets(name = "rsa_main.dat")
+    var rsaJsonPath = getFilePathFromAssets(name = "rsa_main.json")
 
 
     Box(modifier = Modifier
@@ -82,64 +76,44 @@ fun MultiplierComponent() {
             onClick = {
                 Thread(
                     Runnable {
-                        // 1. Load circuit data into circuitBuffer
-                        val keccak256CircuitBuffer: ByteArray = readFileInChunks(keccak256CircuitPath)
-                        val keccak256CircuitSize: Long = keccak256CircuitBuffer.size.toLong()
-
-                        // 2. Load JSON data into jsonBuffer
-                        val keccak256JsonBuffer: ByteArray = readFileInChunks(keccak256JsonPath)
-                        val keccak256JsonSize: Long = keccak256JsonBuffer.size.toLong()
-
-                        // 3. Prepare witness buffer (initially empty)
-                        val keccak256WtnsBuffer: ByteArray = ByteArray(100 * 1024 * 1024)  // Allocate buffer size based on expected data
-                        val keccak256WtnsSize = LongArray(1)
-                        keccak256WtnsSize[0] = (100 * 1024 * 1024).toLong() // Set the initial size
-                        // 4. Prepare error message buffer (initially empty)
-                        val keccak256ErrorMsg: ByteArray = ByteArray(256)  // Set buffer size based on expected error message length
-                        val keccak256ErrorMsgMaxSize: Long = keccak256ErrorMsg.size.toLong()
-
-                        var keccak256ZkeyBuffer: ByteArray = readFileInChunks(keccak256ZkeyPath)
-                        val keccak256ZkeySize: Long = keccak256ZkeyBuffer.size.toLong()
-
-                        val witnessData = keccak256WtnsBuffer.copyOfRange(0, keccak256WtnsSize[0].toInt())
-
-                        val pubData = ByteArray(4 *1024 *1024)
-                        val pubLen = LongArray(1)
-                        pubLen[0] = pubData.size.toLong()
-
-                        val proofData = ByteArray(4*1024*1024)
-                        val proofLen = LongArray(1)
-                        proofLen[0] = proofData.size.toLong()
+                        val rapidsnarkInputs = prepareCircuitInputs(
+                            rsaCircuitPath,
+                            rsaJsonPath,
+                            rsaZkeyPath
+                        )
                         val startTime = System.currentTimeMillis()
-                        var res = zkpTools.witnesscalcKeccak256_256_test(
-                            keccak256CircuitBuffer,
-                            keccak256CircuitSize,
-                            keccak256JsonBuffer,
-                            keccak256JsonSize,
-                            keccak256WtnsBuffer,
-                            keccak256WtnsSize,
-                            keccak256ErrorMsg,
-                            keccak256ErrorMsgMaxSize
+                        var wtnsRes = zkpTools.witnesscalcRSA(
+                            rapidsnarkInputs.circuitBuffer,
+                            rapidsnarkInputs.circuitSize,
+                            rapidsnarkInputs.jsonBuffer,
+                            rapidsnarkInputs.jsonSize,
+                            rapidsnarkInputs.wtnsBuffer,
+                            rapidsnarkInputs.wtnsSize,
+                            rapidsnarkInputs.errorMsg,
+                            rapidsnarkInputs.errorMsgMaxSize
                         )
-                        println(res)
 
-                        var proofRes = zkpTools.groth16_prover(
-                            keccak256ZkeyBuffer,
-                            keccak256ZkeySize,
-                            keccak256WtnsBuffer,
-                            keccak256WtnsSize[0],
-                            proofData,
-                            proofLen,
-                            pubData,
-                            pubLen,
-                            keccak256ErrorMsg,
-                            keccak256ErrorMsgMaxSize
+                        println(wtnsRes)
+                        println(rapidsnarkInputs.errorMsg.toString(Charsets.UTF_8))
+
+                        var proofRes = zkpTools.groth16ProveWithZKeyFilePath(
+                            rsaZkeyPath,
+                            rapidsnarkInputs.wtnsBuffer,
+                            rapidsnarkInputs.wtnsSize[0],
+                            rapidsnarkInputs.proofData,
+                            rapidsnarkInputs.proofLen,
+                            rapidsnarkInputs.pubData,
+                            rapidsnarkInputs.pubLen,
+                            rapidsnarkInputs.errorMsg,
+                            rapidsnarkInputs.errorMsgMaxSize
                         )
+
 
                         //res = generateCircomProof(rsaZkeyPath, rsaInputs)
                         val endTime = System.currentTimeMillis()
+                        //println(toEthereumInputs(res.inputs))
                         println(proofRes)
-                        println(pubData.toString(Charsets.UTF_8))
+                        println(rapidsnarkInputs.pubData.toString(Charsets.UTF_8))
                         provingTime = "proving time: " + (endTime - startTime).toString() + " ms"
                     }
                 ).start()

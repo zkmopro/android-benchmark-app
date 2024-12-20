@@ -15,10 +15,37 @@ class ZKPTools(val context: Context) {
                                wtnsSize: LongArray,
                                errorMsg: ByteArray,
                                errorMsgMaxSize: Long): Int
-    
+
+    external fun witnesscalcSemaphore32(circuitBuffer: ByteArray,
+                                               circuitSize: Long,
+                                               jsonBuffer: ByteArray,
+                                               jsonSize: Long,
+                                               wtnsBuffer: ByteArray,
+                                               wtnsSize: LongArray,
+                                               errorMsg: ByteArray,
+                                               errorMsgMaxSize: Long): Int
+
+    external fun witnesscalcSHA256(circuitBuffer: ByteArray,
+                                        circuitSize: Long,
+                                        jsonBuffer: ByteArray,
+                                        jsonSize: Long,
+                                        wtnsBuffer: ByteArray,
+                                        wtnsSize: LongArray,
+                                        errorMsg: ByteArray,
+                                        errorMsgMaxSize: Long): Int
+
+    external fun witnesscalcRSA(circuitBuffer: ByteArray,
+                                   circuitSize: Long,
+                                   jsonBuffer: ByteArray,
+                                   jsonSize: Long,
+                                   wtnsBuffer: ByteArray,
+                                   wtnsSize: LongArray,
+                                   errorMsg: ByteArray,
+                                   errorMsgMaxSize: Long): Int
+
     // external fun CalcPublicBufferSize(zkeyBuffer: ByteArray, zkeySize: Long): Long
-    external fun groth16_prover(
-        zkeyBuffer: ByteArray, zkeySize: Long,
+    external fun groth16ProveWithZKeyFilePath(
+        zkeyPath: String,
         wtnsBuffer: ByteArray, wtnsSize: Long,
         proofBuffer: ByteArray, proofSize: LongArray,
         publicBuffer: ByteArray, publicSize: LongArray,
