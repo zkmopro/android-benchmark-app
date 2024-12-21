@@ -43,6 +43,15 @@ class ZKPTools(val context: Context) {
                                    errorMsg: ByteArray,
                                    errorMsgMaxSize: Long): Int
 
+    external fun witnesscalcAadhaarVerifier(circuitBuffer: ByteArray,
+                                            circuitSize: Long,
+                                            jsonBuffer: ByteArray,
+                                            jsonSize: Long,
+                                            wtnsBuffer: ByteArray,
+                                            wtnsSize: LongArray,
+                                            errorMsg: ByteArray,
+                                            errorMsgMaxSize: Long): Int
+
     // external fun CalcPublicBufferSize(zkeyBuffer: ByteArray, zkeySize: Long): Long
     external fun groth16ProveWithZKeyFilePath(
         zkeyPath: String,
