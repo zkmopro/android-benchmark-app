@@ -46,9 +46,13 @@ set_target_properties(semaphore PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}
 add_library(sha256_512 SHARED IMPORTED)
 set_target_properties(sha256_512 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/libwitnesscalc_sha256_512.so)
 
+add_library(aadhaar_verifier SHARED IMPORTED)
+set_target_properties(aadhaar_verifier PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/libwitnesscalc_aadhaar_verifier.so)
+
+
 add_library(${CMAKE_PROJECT_NAME} SHARED
         moproapp.cpp)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
         android
-        log rapidsnark keccak256_256_test rsa_main semaphore sha256_512)
+        log rapidsnark keccak256_256_test rsa_main semaphore sha256_512 aadhaar_verifier)
