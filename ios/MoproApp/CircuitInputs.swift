@@ -794,10 +794,89 @@ func witnessCalcKeccak256(
 ) throws {
     let circuitInputs = try prepareCircuitInputs(circuitPath: circuitPath, jsonPath: jsonPath)
     
-    let start = CFAbsoluteTimeGetCurrent()
     
     // Generate Proof
     let res = witnesscalc_keccak256_256_test(
+        circuitInputs.circuitBuffer,
+        UInt(circuitInputs.circuitSize),
+        circuitInputs.jsonBuffer,
+        UInt(circuitInputs.jsonSize),
+        circuitInputs.wtnsBuffer,
+        circuitInputs.wtnsSize,
+        circuitInputs.errorMsg,
+        circuitInputs.errorMsgMaxSize
+    )
+    print(res)
+    
+    let witnessData = Data(bytes: circuitInputs.wtnsBuffer, count: Int(circuitInputs.wtnsSize.pointee))
+    let proofRes = try groth16ProveWithZKeyFilePath(zkeyPath: zkeyPath, witness: witnessData)
+    print(proofRes)
+}
+
+func witnessCalcSha256(
+    circuitPath: String,
+    jsonPath: String,
+    zkeyPath: String
+) throws {
+    let circuitInputs = try prepareCircuitInputs(circuitPath: circuitPath, jsonPath: jsonPath)
+    
+    
+    // Generate Proof
+    let res = witnesscalc_sha256_512(
+        circuitInputs.circuitBuffer,
+        UInt(circuitInputs.circuitSize),
+        circuitInputs.jsonBuffer,
+        UInt(circuitInputs.jsonSize),
+        circuitInputs.wtnsBuffer,
+        circuitInputs.wtnsSize,
+        circuitInputs.errorMsg,
+        circuitInputs.errorMsgMaxSize
+    )
+    print(res)
+    
+    let witnessData = Data(bytes: circuitInputs.wtnsBuffer, count: Int(circuitInputs.wtnsSize.pointee))
+    let proofRes = try groth16ProveWithZKeyFilePath(zkeyPath: zkeyPath, witness: witnessData)
+    print(proofRes)
+}
+
+
+func witnessCalcRSA(
+    circuitPath: String,
+    jsonPath: String,
+    zkeyPath: String
+) throws {
+    let circuitInputs = try prepareCircuitInputs(circuitPath: circuitPath, jsonPath: jsonPath)
+    
+    
+    // Generate Proof
+    let res = witnesscalc_rsa_main(
+        circuitInputs.circuitBuffer,
+        UInt(circuitInputs.circuitSize),
+        circuitInputs.jsonBuffer,
+        UInt(circuitInputs.jsonSize),
+        circuitInputs.wtnsBuffer,
+        circuitInputs.wtnsSize,
+        circuitInputs.errorMsg,
+        circuitInputs.errorMsgMaxSize
+    )
+    print(res)
+    
+    let witnessData = Data(bytes: circuitInputs.wtnsBuffer, count: Int(circuitInputs.wtnsSize.pointee))
+    let proofRes = try groth16ProveWithZKeyFilePath(zkeyPath: zkeyPath, witness: witnessData)
+    print(proofRes)
+}
+
+
+func witnessCalcSemaphore(
+    circuitPath: String,
+    jsonPath: String,
+    zkeyPath: String
+) throws {
+    let circuitInputs = try prepareCircuitInputs(circuitPath: circuitPath, jsonPath: jsonPath)
+    
+    
+    // Generate Proof
+    let res = witnesscalc_semaphore(
         circuitInputs.circuitBuffer,
         UInt(circuitInputs.circuitSize),
         circuitInputs.jsonBuffer,
