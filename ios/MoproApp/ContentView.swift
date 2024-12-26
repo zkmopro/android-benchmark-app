@@ -90,6 +90,7 @@ extension ContentView {
             
             let start = CFAbsoluteTimeGetCurrent()
             
+            //try witnessCalcKeccak256(circuitPath: keccak256CircuitPath, jsonPath: keccak256InputPath, zkeyPath: keccak256ZkeyPath)
             //try witnessCalcSha256(circuitPath: sha256CircuitPath, jsonPath: sha256InputPath, zkeyPath: sha256ZkeyPath)
             //try witnessCalcRSA(circuitPath: RSACircuitPath, jsonPath: RSAInputPath, zkeyPath: RSAZkeyPath)
             //try witnessCalcSemaphore(circuitPath: semaphoreCircuitPath, jsonPath: semaphoreInputPath, zkeyPath: semaphoreZkeyPath)
