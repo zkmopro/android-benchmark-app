@@ -55,6 +55,7 @@ fun MultiplierComponent() {
     val sha256ZkeyPath = getFilePathFromAssets("sha256_512_final.zkey")
     val rsaZkeyPath = getFilePathFromAssets("rsa_main_final.zkey")
     val semaphoreZkeyPath = getFilePathFromAssets("semaphore-32.zkey")
+    val aadhaarZkeyPath = getFilePathFromAssets("circuit_final.zkey")
 
     var keccak256CircuitPath = getFilePathFromAssets(name = "keccak256_256_test.dat")
     var keccak256JsonPath = getFilePathFromAssets(name = "keccak256.json")
@@ -68,6 +69,9 @@ fun MultiplierComponent() {
     var rsaCircuitPath = getFilePathFromAssets(name = "rsa_main.dat")
     var rsaJsonPath = getFilePathFromAssets(name = "rsa_main.json")
 
+    var aadhaarCircuitPath = getFilePathFromAssets(name = "aadhaar_verifier.dat")
+    var aadhaarJsonPath = getFilePathFromAssets(name = "aadhaar_verifier_input.json")
+
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -77,11 +81,11 @@ fun MultiplierComponent() {
                 Thread(
                     Runnable {
                         val rapidsnarkInputs = prepareCircuitInputs(
-                            rsaCircuitPath,
-                            rsaJsonPath,
+                            aadhaarCircuitPath,
+                            aadhaarJsonPath,
                         )
                         val startTime = System.currentTimeMillis()
-                        var wtnsRes = zkpTools.witnesscalcRSA(
+                        var wtnsRes = zkpTools.witnesscalcAadhaarVerifier(
                             rapidsnarkInputs.circuitBuffer,
                             rapidsnarkInputs.circuitSize,
                             rapidsnarkInputs.jsonBuffer,
@@ -96,7 +100,7 @@ fun MultiplierComponent() {
                         println(rapidsnarkInputs.errorMsg.toString(Charsets.UTF_8))
 
                         var proofRes = zkpTools.groth16ProveWithZKeyFilePath(
-                            rsaZkeyPath,
+                            aadhaarZkeyPath,
                             rapidsnarkInputs.wtnsBuffer,
                             rapidsnarkInputs.wtnsSize[0],
                             rapidsnarkInputs.proofData,
