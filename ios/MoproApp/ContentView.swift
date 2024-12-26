@@ -42,9 +42,17 @@ struct ContentView: View {
     @State private var generatedHalo2Proof: Data?
     @State private var halo2PublicInputs: Data?
     private let keccak256ZkeyPath = Bundle.main.path(forResource: "keccak256_256_test_final", ofType: "zkey")!
+    private let keccak256CircuitPath = Bundle.main.path(forResource: "keccak256_256_test", ofType: "dat")!
+    private let keccak256InputPath = Bundle.main.path(forResource: "keccak256", ofType: "json")!
     private let sha256ZkeyPath = Bundle.main.path(forResource: "sha256_512_final", ofType: "zkey")!
+    private let sha256CircuitPath = Bundle.main.path(forResource: "sha256_512", ofType: "dat")!
+    private let sha256InputPath = Bundle.main.path(forResource: "sha256", ofType: "json")!
     private let RSAZkeyPath = Bundle.main.path(forResource: "rsa_main_final", ofType: "zkey")!
+    private let RSACircuitPath = Bundle.main.path(forResource: "rsa_main", ofType: "dat")!
+    private let RSAInputPath = Bundle.main.path(forResource: "rsa_main", ofType: "json")!
     private let semaphoreZkeyPath = Bundle.main.path(forResource: "semaphore-32", ofType: "zkey")!
+    private let semaphoreCircuitPath = Bundle.main.path(forResource: "semaphore", ofType: "dat")!
+    private let semaphoreInputPath = Bundle.main.path(forResource: "semaphore-32", ofType: "json")!
     private let srsPath = Bundle.main.path(forResource: "plonk_fibonacci_srs.bin", ofType: "")!
     private let vkPath = Bundle.main.path(forResource: "plonk_fibonacci_vk.bin", ofType: "")!
     private let pkPath = Bundle.main.path(forResource: "plonk_fibonacci_pk.bin", ofType: "")!
@@ -79,19 +87,23 @@ extension ContentView {
             //var inputs = getSha256Inputs()
             //var inputs = getRSAInputs()
             var inputs = getSemaphoreInputs()
+            
             let start = CFAbsoluteTimeGetCurrent()
             
-            // Generate Proof
+            //try witnessCalcKeccak256(circuitPath: keccak256CircuitPath, jsonPath: keccak256InputPath, zkeyPath: keccak256ZkeyPath)
+            //try witnessCalcSha256(circuitPath: sha256CircuitPath, jsonPath: sha256InputPath, zkeyPath: sha256ZkeyPath)
+            //try witnessCalcRSA(circuitPath: RSACircuitPath, jsonPath: RSAInputPath, zkeyPath: RSAZkeyPath)
+            //try witnessCalcSemaphore(circuitPath: semaphoreCircuitPath, jsonPath: semaphoreInputPath, zkeyPath: semaphoreZkeyPath)
             let generateProofResult = try generateCircomProof(zkeyPath: semaphoreZkeyPath, circuitInputs: inputs)
-            assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
+            //assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
             //assert(Data(expectedOutput) == generateProofResult.inputs, "Circuit outputs mismatch the expected outputs")
             
             let end = CFAbsoluteTimeGetCurrent()
             let timeTaken = end - start
             
             // Store the generated proof and public inputs for later verification
-            generatedCircomProof = generateProofResult.proof
-            circomPublicInputs = generateProofResult.inputs
+            //generatedCircomProof = generateProofResult.proof
+            //circomPublicInputs = generateProofResult.inputs
             
             textViewText += "\(String(format: "%.3f", timeTaken))s 1️⃣\n"
             
