@@ -42,6 +42,8 @@ struct ContentView: View {
     @State private var generatedHalo2Proof: Data?
     @State private var halo2PublicInputs: Data?
     private let keccak256ZkeyPath = Bundle.main.path(forResource: "keccak256_256_test_final", ofType: "zkey")!
+    private let keccak256CircuitPath = Bundle.main.path(forResource: "keccak256_256_test", ofType: "dat")!
+    private let keccak256InputPath = Bundle.main.path(forResource: "keccak256", ofType: "json")!
     private let sha256ZkeyPath = Bundle.main.path(forResource: "sha256_512_final", ofType: "zkey")!
     private let RSAZkeyPath = Bundle.main.path(forResource: "rsa_main_final", ofType: "zkey")!
     private let semaphoreZkeyPath = Bundle.main.path(forResource: "semaphore-32", ofType: "zkey")!
@@ -78,20 +80,21 @@ extension ContentView {
             //var inputs = getKeccak256Inputs()
             //var inputs = getSha256Inputs()
             //var inputs = getRSAInputs()
-            var inputs = getSemaphoreInputs()
+            //var inputs = getSemaphoreInputs()
+            
             let start = CFAbsoluteTimeGetCurrent()
             
-            // Generate Proof
-            let generateProofResult = try generateCircomProof(zkeyPath: semaphoreZkeyPath, circuitInputs: inputs)
-            assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
+            try witnessCalcKeccak256(circuitPath: keccak256CircuitPath, jsonPath: keccak256InputPath, zkeyPath: keccak256ZkeyPath)
+            //let generateProofResult = try generateCircomProof(zkeyPath: keccak256ZkeyPath, circuitInputs: inputs)
+            //assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
             //assert(Data(expectedOutput) == generateProofResult.inputs, "Circuit outputs mismatch the expected outputs")
             
             let end = CFAbsoluteTimeGetCurrent()
             let timeTaken = end - start
             
             // Store the generated proof and public inputs for later verification
-            generatedCircomProof = generateProofResult.proof
-            circomPublicInputs = generateProofResult.inputs
+            //generatedCircomProof = generateProofResult.proof
+            //circomPublicInputs = generateProofResult.inputs
             
             textViewText += "\(String(format: "%.3f", timeTaken))s 1️⃣\n"
             

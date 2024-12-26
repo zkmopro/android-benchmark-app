@@ -689,3 +689,127 @@ func getSemaphoreInputs() -> [String: [String]] {
 
   return inputs
 }
+
+enum CircuitError: Error {
+  case failedToLoadCircuitData
+  case failedToLoadJSONData
+}
+
+struct CircuitInputs {
+  let circuitBuffer: UnsafePointer<UInt8>
+  let circuitSize: UInt64
+  let jsonBuffer: UnsafePointer<UInt8>
+  let jsonSize: UInt64
+  var wtnsBuffer: UnsafeMutablePointer<UInt8>
+  var wtnsSize: UnsafeMutablePointer<UInt>
+  var errorMsg: UnsafeMutablePointer<UInt8>
+  let errorMsgMaxSize: UInt
+  var pubData: UnsafeMutablePointer<UInt8>
+  var pubLen: UInt
+  var proofData: UnsafeMutablePointer<UInt8>
+  var proofLen: UInt
+
+  init(
+    circuitPath: String,
+    jsonPath: String
+  ) throws {
+    guard let circuitFileHandle = FileHandle(forReadingAtPath: circuitPath) else {
+      print("Failed to load circuit data")
+      throw CircuitError.failedToLoadCircuitData
+    }
+
+    defer {
+      circuitFileHandle.closeFile()
+    }
+
+    var circuitData: Data = Data()
+    do {
+      circuitData = try circuitFileHandle.readToEnd() ?? Data()
+    } catch {
+      print("Failed to read file data: \(error)")
+    }
+
+    let circuitBuffer = circuitData.withUnsafeBytes {
+      return $0.baseAddress?.assumingMemoryBound(to: UInt8.self)
+    }
+
+    guard let jsonFileHandle = FileHandle(forReadingAtPath: jsonPath) else {
+      print("Failed to load circuit data")
+      throw CircuitError.failedToLoadJSONData
+    }
+
+    defer {
+      jsonFileHandle.closeFile()
+    }
+
+    var jsonData: Data = Data()
+    do {
+      jsonData = try jsonFileHandle.readToEnd() ?? Data()
+    } catch {
+      print("Failed to read file data: \(error)")
+    }
+
+    let jsonBuffer = jsonData.withUnsafeBytes {
+      return $0.baseAddress?.assumingMemoryBound(to: UInt8.self)
+    }
+
+      self.circuitBuffer = circuitBuffer!
+      self.circuitSize = UInt64(circuitData.count)
+
+      self.jsonBuffer = jsonBuffer!
+      self.jsonSize = UInt64(jsonData.count)
+
+    self.wtnsBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: (100 * 1024 * 1024))
+    self.wtnsSize = UnsafeMutablePointer<UInt>.allocate(capacity: Int(1))
+    self.wtnsSize.initialize(to: UInt(100 * 1024 * 1024))
+
+    self.errorMsgMaxSize = UInt(256)
+    self.errorMsg = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(self.errorMsgMaxSize))
+
+    self.pubLen = 4 * 1024 * 1024
+    self.pubData = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(self.pubLen))
+
+    self.proofLen = 4 * 1024 * 1024
+    self.proofData = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(self.proofLen))
+
+  }
+}
+
+func prepareCircuitInputs(
+  circuitPath: String,
+  jsonPath: String
+) throws -> CircuitInputs {
+
+  return try CircuitInputs(
+    circuitPath: circuitPath,
+    jsonPath: jsonPath
+  )
+}
+
+
+func witnessCalcKeccak256(
+    circuitPath: String,
+    jsonPath: String,
+    zkeyPath: String
+) throws {
+    let circuitInputs = try prepareCircuitInputs(circuitPath: circuitPath, jsonPath: jsonPath)
+    
+    let start = CFAbsoluteTimeGetCurrent()
+    
+    // Generate Proof
+    let res = witnesscalc_keccak256_256_test(
+        circuitInputs.circuitBuffer,
+        UInt(circuitInputs.circuitSize),
+        circuitInputs.jsonBuffer,
+        UInt(circuitInputs.jsonSize),
+        circuitInputs.wtnsBuffer,
+        circuitInputs.wtnsSize,
+        circuitInputs.errorMsg,
+        circuitInputs.errorMsgMaxSize
+    )
+    print(res)
+    
+    let witnessData = Data(bytes: circuitInputs.wtnsBuffer, count: Int(circuitInputs.wtnsSize.pointee))
+    let proofRes = try groth16ProveWithZKeyFilePath(zkeyPath: zkeyPath, witness: witnessData)
+    print(proofRes)
+}
