@@ -37,6 +37,7 @@ fun MultiplierComponent() {
         mutableStateOf<GenerateProofResult>(
             GenerateProofResult(proof = ByteArray(size = 0), inputs = ByteArray(size = 0))
         )
+    }
 
     val inputs = mutableMapOf<String, List<String>>()
     inputs["a"] = listOf("3")
