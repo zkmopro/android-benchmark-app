@@ -37,7 +37,6 @@ fun MultiplierComponent() {
         mutableStateOf<GenerateProofResult>(
             GenerateProofResult(proof = ByteArray(size = 0), inputs = ByteArray(size = 0))
         )
-    }
 
     val inputs = mutableMapOf<String, List<String>>()
     inputs["a"] = listOf("3")
@@ -47,27 +46,38 @@ fun MultiplierComponent() {
     var sha256Inputs = getSha256Inputs()
     var rsaInputs = getRSAInputs()
     var semaphoreInputs = getSemaphoreInputs()
+    var aadhaarInputs = getAadhaarInputs()
 
     val context = LocalContext.current
     val zkpTools = ZKPTools(context)
 
+    val multiplier2ZkeyPath = getFilePathFromAssets("multiplier2_final.zkey")
     val keccak256ZkeyPath = getFilePathFromAssets("keccak256_256_test_final.zkey")
     val sha256ZkeyPath = getFilePathFromAssets("sha256_512_final.zkey")
     val rsaZkeyPath = getFilePathFromAssets("rsa_main_final.zkey")
     val semaphoreZkeyPath = getFilePathFromAssets("semaphore-32.zkey")
+    var aadhaarZkeyPath = getFilePathFromAssets("circuit_final.zkey")
 
     var keccak256CircuitPath = getFilePathFromAssets(name = "keccak256_256_test.dat")
     var keccak256JsonPath = getFilePathFromAssets(name = "keccak256.json")
+    var keccak256GraphPath = getFilePathFromAssets(name = "keccak256.bin")
+    var keccak256WasmPath = getFilePathFromAssets(name = "keccak256_256_test.wasm")
 
     var sha256CircuitPath = getFilePathFromAssets(name = "sha256_512.dat")
     var sha256JsonPath = getFilePathFromAssets(name = "sha256.json")
+    var sha256GraphPath = getFilePathFromAssets(name = "sha256.bin")
+    var sha256WasmPath = getFilePathFromAssets(name = "sha256_512.wasm")
 
     var semaphoreCircuitPath = getFilePathFromAssets(name = "semaphore.dat")
     var semaphoreJsonPath = getFilePathFromAssets(name = "semaphore-32.json")
+    var semaphoreGraphPath = getFilePathFromAssets(name = "semaphore.bin")
+    var semaphoreWasmPath = getFilePathFromAssets(name = "semaphore-32.wasm")
 
     var rsaCircuitPath = getFilePathFromAssets(name = "rsa_main.dat")
     var rsaJsonPath = getFilePathFromAssets(name = "rsa_main.json")
+    var rsaWasmPath = getFilePathFromAssets(name = "rsa_main.wasm")
 
+    var aadhaarWasmPath = getFilePathFromAssets(name = "aadhaar-verifier.wasm")
 
     Box(modifier = Modifier
         .fillMaxSize()
