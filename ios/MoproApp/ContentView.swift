@@ -53,6 +53,9 @@ struct ContentView: View {
     private let semaphoreZkeyPath = Bundle.main.path(forResource: "semaphore-32", ofType: "zkey")!
     private let semaphoreCircuitPath = Bundle.main.path(forResource: "semaphore", ofType: "dat")!
     private let semaphoreInputPath = Bundle.main.path(forResource: "semaphore-32", ofType: "json")!
+    private let AadhaarZkeyPath = Bundle.main.path(forResource: "circuit_final", ofType: "zkey")!
+    private let AadhaarCircuitPath = Bundle.main.path(forResource: "aadhaar_verifier", ofType: "dat")!
+    private let AadhaarInputPath = Bundle.main.path(forResource: "aadhaar_verifier_input", ofType: "json")!
     private let srsPath = Bundle.main.path(forResource: "plonk_fibonacci_srs.bin", ofType: "")!
     private let vkPath = Bundle.main.path(forResource: "plonk_fibonacci_vk.bin", ofType: "")!
     private let pkPath = Bundle.main.path(forResource: "plonk_fibonacci_pk.bin", ofType: "")!
@@ -86,7 +89,8 @@ extension ContentView {
             //var inputs = getKeccak256Inputs()
             //var inputs = getSha256Inputs()
             //var inputs = getRSAInputs()
-            var inputs = getSemaphoreInputs()
+            //var inputs = getSemaphoreInputs()
+            var inputs = getAadhaarInputs()
             
             let start = CFAbsoluteTimeGetCurrent()
             
@@ -94,7 +98,8 @@ extension ContentView {
             //try witnessCalcSha256(circuitPath: sha256CircuitPath, jsonPath: sha256InputPath, zkeyPath: sha256ZkeyPath)
             //try witnessCalcRSA(circuitPath: RSACircuitPath, jsonPath: RSAInputPath, zkeyPath: RSAZkeyPath)
             //try witnessCalcSemaphore(circuitPath: semaphoreCircuitPath, jsonPath: semaphoreInputPath, zkeyPath: semaphoreZkeyPath)
-            let generateProofResult = try generateCircomProof(zkeyPath: semaphoreZkeyPath, circuitInputs: inputs)
+            //try witnessCalcAadhaar(circuitPath: AadhaarCircuitPath, jsonPath: AadhaarInputPath, zkeyPath: AadhaarZkeyPath)
+            let generateProofResult = try generateCircomProof(zkeyPath: AadhaarZkeyPath, circuitInputs: inputs)
             //assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
             //assert(Data(expectedOutput) == generateProofResult.inputs, "Circuit outputs mismatch the expected outputs")
             

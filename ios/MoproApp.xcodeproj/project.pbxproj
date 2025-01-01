@@ -23,6 +23,7 @@
 		2ABC0BC42D1D13B400965C65 /* libwitnesscalc_semaphore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ABC0BC12D1D13B400965C65 /* libwitnesscalc_semaphore.xcframework */; };
 		2ABC0BC52D1D13B400965C65 /* libwitnesscalc_rsa_main.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ABC0BC02D1D13B400965C65 /* libwitnesscalc_rsa_main.xcframework */; };
 		2ABC0BC62D1D13B400965C65 /* libwitnesscalc_sha256_512.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ABC0BC22D1D13B400965C65 /* libwitnesscalc_sha256_512.xcframework */; };
+		2ABC0C092D1D4E9500965C65 /* libwitnesscalc_aadhaar_verifier.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ABC0C082D1D4E9500965C65 /* libwitnesscalc_aadhaar_verifier.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		2ABC0BC02D1D13B400965C65 /* libwitnesscalc_rsa_main.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libwitnesscalc_rsa_main.xcframework; sourceTree = "<group>"; };
 		2ABC0BC12D1D13B400965C65 /* libwitnesscalc_semaphore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libwitnesscalc_semaphore.xcframework; sourceTree = "<group>"; };
 		2ABC0BC22D1D13B400965C65 /* libwitnesscalc_sha256_512.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libwitnesscalc_sha256_512.xcframework; sourceTree = "<group>"; };
+		2ABC0C082D1D4E9500965C65 /* libwitnesscalc_aadhaar_verifier.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libwitnesscalc_aadhaar_verifier.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -87,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2ABC0C092D1D4E9500965C65 /* libwitnesscalc_aadhaar_verifier.xcframework in Frameworks */,
 				2ABC0BC32D1D13B400965C65 /* libwitnesscalc_keccak256_256_test.xcframework in Frameworks */,
 				2ABC0BC42D1D13B400965C65 /* libwitnesscalc_semaphore.xcframework in Frameworks */,
 				2ABC0BC52D1D13B400965C65 /* libwitnesscalc_rsa_main.xcframework in Frameworks */,
@@ -124,6 +127,7 @@
 				2A59922E2CC7750200135402 /* multiplier2_final.zkey */,
 				2ABC0B4B2D1D00E400965C65 /* circuit_final.zkey */,
 				2ABC0BBF2D1D13B400965C65 /* libwitnesscalc_keccak256_256_test.xcframework */,
+				2ABC0C082D1D4E9500965C65 /* libwitnesscalc_aadhaar_verifier.xcframework */,
 				2ABC0BC02D1D13B400965C65 /* libwitnesscalc_rsa_main.xcframework */,
 				2ABC0BC12D1D13B400965C65 /* libwitnesscalc_semaphore.xcframework */,
 				2ABC0BC22D1D13B400965C65 /* libwitnesscalc_sha256_512.xcframework */,
