@@ -14,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.moproapp.ZKPTools
 import com.example.moproapp.getFilePathFromAssets
+import com.example.moproapp.groth16Prove
+import com.example.moproapp.groth16Verify
 import uniffi.mopro.GenerateProofResult
 import uniffi.mopro.generateCircomProof
 import uniffi.mopro.toEthereumInputs
@@ -63,6 +65,7 @@ fun MultiplierComponent() {
     var keccak256JsonPath = getFilePathFromAssets(name = "keccak256.json")
     var keccak256GraphPath = getFilePathFromAssets(name = "keccak256.bin")
     var keccak256WasmPath = getFilePathFromAssets(name = "keccak256_256_test.wasm")
+    var keccak256VkeyPath = getFilePathFromAssets(name = "keccak256_256_test.json")
 
     var sha256CircuitPath = getFilePathFromAssets(name = "sha256_512.dat")
     var sha256JsonPath = getFilePathFromAssets(name = "sha256.json")
@@ -88,11 +91,11 @@ fun MultiplierComponent() {
                 Thread(
                     Runnable {
                         val rapidsnarkInputs = prepareCircuitInputs(
-                            rsaCircuitPath,
-                            rsaJsonPath,
+                            keccak256CircuitPath,
+                            keccak256JsonPath,
                         )
                         val startTime = System.currentTimeMillis()
-                        var wtnsRes = zkpTools.witnesscalcRSA(
+                        var wtnsRes = zkpTools.witnesscalcKeccak256_256_test(
                             rapidsnarkInputs.circuitBuffer,
                             rapidsnarkInputs.circuitSize,
                             rapidsnarkInputs.jsonBuffer,
@@ -103,27 +106,28 @@ fun MultiplierComponent() {
                             rapidsnarkInputs.errorMsgMaxSize
                         )
 
-                        println(wtnsRes)
-                        println(rapidsnarkInputs.errorMsg.toString(Charsets.UTF_8))
 
-                        var proofRes = zkpTools.groth16ProveWithZKeyFilePath(
-                            rsaZkeyPath,
+                        var proofRes = groth16Prove(
+                            keccak256ZkeyPath,
                             rapidsnarkInputs.wtnsBuffer,
-                            rapidsnarkInputs.wtnsSize[0],
-                            rapidsnarkInputs.proofData,
-                            rapidsnarkInputs.proofLen,
-                            rapidsnarkInputs.pubData,
-                            rapidsnarkInputs.pubLen,
-                            rapidsnarkInputs.errorMsg,
-                            rapidsnarkInputs.errorMsgMaxSize
-                        )
 
+                        )
 
                         //res = generateCircomProof(rsaZkeyPath, rsaInputs)
                         val endTime = System.currentTimeMillis()
                         //println(toEthereumInputs(res.inputs))
                         println(proofRes)
                         println(rapidsnarkInputs.pubData.toString(Charsets.UTF_8))
+
+                        var vkeyData : ByteArray = readFileInChunks(keccak256VkeyPath)
+                        var verifyRes = groth16Verify(
+                            proofRes.proof,
+                            proofRes.publicSignals,
+                            vkeyData.toString(Charsets.UTF_8),
+
+                        )
+                        println("verify res $verifyRes", )
+                        
                         provingTime = "proving time: " + (endTime - startTime).toString() + " ms"
                     }
                 ).start()

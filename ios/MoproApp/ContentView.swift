@@ -90,11 +90,11 @@ extension ContentView {
             
             let start = CFAbsoluteTimeGetCurrent()
             
-            //try witnessCalcKeccak256(circuitPath: keccak256CircuitPath, jsonPath: keccak256InputPath, zkeyPath: keccak256ZkeyPath)
+            try witnessCalcKeccak256(circuitPath: keccak256CircuitPath, jsonPath: keccak256InputPath, zkeyPath: keccak256ZkeyPath)
             //try witnessCalcSha256(circuitPath: sha256CircuitPath, jsonPath: sha256InputPath, zkeyPath: sha256ZkeyPath)
             //try witnessCalcRSA(circuitPath: RSACircuitPath, jsonPath: RSAInputPath, zkeyPath: RSAZkeyPath)
             //try witnessCalcSemaphore(circuitPath: semaphoreCircuitPath, jsonPath: semaphoreInputPath, zkeyPath: semaphoreZkeyPath)
-            let generateProofResult = try generateCircomProof(zkeyPath: semaphoreZkeyPath, circuitInputs: inputs)
+            //let generateProofResult = try generateCircomProof(zkeyPath: semaphoreZkeyPath, circuitInputs: inputs)
             //assert(!generateProofResult.proof.isEmpty, "Proof should not be empty")
             //assert(Data(expectedOutput) == generateProofResult.inputs, "Circuit outputs mismatch the expected outputs")
             

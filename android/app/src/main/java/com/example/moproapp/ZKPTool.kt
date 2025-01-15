@@ -43,17 +43,8 @@ class ZKPTools(val context: Context) {
                                    errorMsg: ByteArray,
                                    errorMsgMaxSize: Long): Int
 
-    // external fun CalcPublicBufferSize(zkeyBuffer: ByteArray, zkeySize: Long): Long
-    external fun groth16ProveWithZKeyFilePath(
-        zkeyPath: String,
-        wtnsBuffer: ByteArray, wtnsSize: Long,
-        proofBuffer: ByteArray, proofSize: LongArray,
-        publicBuffer: ByteArray, publicSize: LongArray,
-        errorMsg: ByteArray, errorMsgMaxSize: Long
-    ): Int
 
     init {
-        System.loadLibrary("rapidsnark");
         System.loadLibrary("moproapp")
     }
 
