@@ -106,14 +106,18 @@ fun MultiplierComponent() {
                             rapidsnarkInputs.errorMsgMaxSize
                         )
 
-                        println(wtnsRes)
-                        println(rapidsnarkInputs.errorMsg.toString(Charsets.UTF_8))
 
                         var proofRes = groth16Prove(
                             keccak256ZkeyPath,
                             rapidsnarkInputs.wtnsBuffer,
 
                         )
+
+                        //res = generateCircomProof(rsaZkeyPath, rsaInputs)
+                        val endTime = System.currentTimeMillis()
+                        //println(toEthereumInputs(res.inputs))
+                        println(proofRes)
+                        println(rapidsnarkInputs.pubData.toString(Charsets.UTF_8))
 
                         var vkeyData : ByteArray = readFileInChunks(keccak256VkeyPath)
                         var verifyRes = groth16Verify(
@@ -122,17 +126,8 @@ fun MultiplierComponent() {
                             vkeyData.toString(Charsets.UTF_8),
 
                         )
-                        println(rapidsnarkInputs.proofData.toString(Charsets.UTF_8))
-                        //println(rapidsnarkInputs.pubData.toString(Charsets.UTF_8))
-                        //println(vkeyData.toString(Charsets.UTF_8))
                         println("verify res $verifyRes", )
-                        println(rapidsnarkInputs.errorMsg.toString(Charsets.UTF_8))
-
-                        //res = generateCircomProof(rsaZkeyPath, rsaInputs)
-                        val endTime = System.currentTimeMillis()
-                        //println(toEthereumInputs(res.inputs))
-                        println(proofRes)
-                        println(rapidsnarkInputs.pubData.toString(Charsets.UTF_8))
+                        
                         provingTime = "proving time: " + (endTime - startTime).toString() + " ms"
                     }
                 ).start()
