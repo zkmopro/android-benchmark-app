@@ -807,10 +807,32 @@ func witnessCalcKeccak256(
         circuitInputs.errorMsgMaxSize
     )
     print(res)
+
+    let vkeyPath = Bundle.main.path(forResource: "keccak256_256_test", ofType: "json")!
+
+    guard let vkeyFileHandle = FileHandle(forReadingAtPath: vkeyPath) else {
+      print("Failed to load vkey data")
+      throw CircuitError.failedToLoadJSONData
+    }
+
+    defer {
+      vkeyFileHandle.closeFile()
+    }
+
+    var vkeyData: Data = Data()
+    do {
+      vkeyData = try vkeyFileHandle.readToEnd() ?? Data()
+    } catch {
+      print("Failed to read vkey data: \(error)")
+    }
     
     let witnessData = Data(bytes: circuitInputs.wtnsBuffer, count: Int(circuitInputs.wtnsSize.pointee))
     let proofRes = try groth16ProveWithZKeyFilePath(zkeyPath: zkeyPath, witness: witnessData)
+    let proof = proofRes.proof.data(using: .utf8)
+    let inputs = proofRes.publicSignals.data(using: .utf8)
+    let vRes = try groth16Verify(proof: proof!, inputs: inputs!, verificationKey: vkeyData )
     print(proofRes)
+    print(vRes)
 }
 
 func witnessCalcSha256(
