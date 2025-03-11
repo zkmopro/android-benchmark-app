@@ -50,9 +50,11 @@ fileprivate extension ForeignBytes {
 
 fileprivate extension Data {
     init(rustBuffer: RustBuffer) {
-        // TODO: This copies the buffer. Can we read directly from a
-        // Rust buffer?
-        self.init(bytes: rustBuffer.data!, count: Int(rustBuffer.len))
+        self.init(
+            bytesNoCopy: rustBuffer.data!,
+            count: Int(rustBuffer.len),
+            deallocator: .none
+        )
     }
 }
 
@@ -168,10 +170,16 @@ fileprivate protocol FfiConverter {
 fileprivate protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType { }
 
 extension FfiConverterPrimitive {
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lift(_ value: FfiType) throws -> SwiftType {
         return value
     }
 
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lower(_ value: SwiftType) -> FfiType {
         return value
     }
@@ -182,6 +190,9 @@ extension FfiConverterPrimitive {
 fileprivate protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
 
 extension FfiConverterRustBuffer {
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lift(_ buf: RustBuffer) throws -> SwiftType {
         var reader = createReader(data: Data(rustBuffer: buf))
         let value = try read(from: &reader)
@@ -192,6 +203,9 @@ extension FfiConverterRustBuffer {
         return value
     }
 
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lower(_ value: SwiftType) -> RustBuffer {
           var writer = createWriter()
           write(value, into: &writer)
@@ -267,7 +281,7 @@ private func makeRustCall<T, E: Swift.Error>(
     _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T,
     errorHandler: ((RustBuffer) throws -> E)?
 ) throws -> T {
-    uniffiEnsureInitialized()
+    uniffiEnsureMoproBindingsInitialized()
     var callStatus = RustCallStatus.init()
     let returnedVal = callback(&callStatus)
     try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: errorHandler)
@@ -338,9 +352,10 @@ private func uniffiTraitInterfaceCallWithError<T, E>(
         callStatus.pointee.errorBuf = FfiConverterString.lower(String(describing: error))
     }
 }
-fileprivate class UniffiHandleMap<T> {
-    private var map: [UInt64: T] = [:]
+fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
+    // All mutation happens with this lock held, which is why we implement @unchecked Sendable.
     private let lock = NSLock()
+    private var map: [UInt64: T] = [:]
     private var currentHandle: UInt64 = 1
 
     func insert(obj: T) -> UInt64 {
@@ -382,6 +397,9 @@ fileprivate class UniffiHandleMap<T> {
 // Public interface members begin here.
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterBool : FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
@@ -403,6 +421,9 @@ fileprivate struct FfiConverterBool : FfiConverter {
     }
 }
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterString: FfiConverter {
     typealias SwiftType = String
     typealias FfiType = RustBuffer
@@ -441,6 +462,9 @@ fileprivate struct FfiConverterString: FfiConverter {
     }
 }
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterData: FfiConverterRustBuffer {
     typealias SwiftType = Data
 
@@ -469,6 +493,9 @@ public struct G1 {
     }
 }
 
+#if compiler(>=6)
+extension G1: Sendable {}
+#endif
 
 
 extension G1: Equatable, Hashable {
@@ -489,6 +516,10 @@ extension G1: Equatable, Hashable {
 }
 
 
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public struct FfiConverterTypeG1: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> G1 {
         return
@@ -505,10 +536,16 @@ public struct FfiConverterTypeG1: FfiConverterRustBuffer {
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeG1_lift(_ buf: RustBuffer) throws -> G1 {
     return try FfiConverterTypeG1.lift(buf)
 }
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeG1_lower(_ value: G1) -> RustBuffer {
     return FfiConverterTypeG1.lower(value)
 }
@@ -526,6 +563,9 @@ public struct G2 {
     }
 }
 
+#if compiler(>=6)
+extension G2: Sendable {}
+#endif
 
 
 extension G2: Equatable, Hashable {
@@ -546,6 +586,10 @@ extension G2: Equatable, Hashable {
 }
 
 
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public struct FfiConverterTypeG2: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> G2 {
         return
@@ -562,10 +606,16 @@ public struct FfiConverterTypeG2: FfiConverterRustBuffer {
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeG2_lift(_ buf: RustBuffer) throws -> G2 {
     return try FfiConverterTypeG2.lift(buf)
 }
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeG2_lower(_ value: G2) -> RustBuffer {
     return FfiConverterTypeG2.lower(value)
 }
@@ -583,6 +633,9 @@ public struct GenerateProofResult {
     }
 }
 
+#if compiler(>=6)
+extension GenerateProofResult: Sendable {}
+#endif
 
 
 extension GenerateProofResult: Equatable, Hashable {
@@ -603,6 +656,10 @@ extension GenerateProofResult: Equatable, Hashable {
 }
 
 
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public struct FfiConverterTypeGenerateProofResult: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> GenerateProofResult {
         return
@@ -619,10 +676,16 @@ public struct FfiConverterTypeGenerateProofResult: FfiConverterRustBuffer {
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeGenerateProofResult_lift(_ buf: RustBuffer) throws -> GenerateProofResult {
     return try FfiConverterTypeGenerateProofResult.lift(buf)
 }
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeGenerateProofResult_lower(_ value: GenerateProofResult) -> RustBuffer {
     return FfiConverterTypeGenerateProofResult.lower(value)
 }
@@ -642,6 +705,9 @@ public struct ProofCalldata {
     }
 }
 
+#if compiler(>=6)
+extension ProofCalldata: Sendable {}
+#endif
 
 
 extension ProofCalldata: Equatable, Hashable {
@@ -666,6 +732,10 @@ extension ProofCalldata: Equatable, Hashable {
 }
 
 
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public struct FfiConverterTypeProofCalldata: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ProofCalldata {
         return
@@ -684,10 +754,16 @@ public struct FfiConverterTypeProofCalldata: FfiConverterRustBuffer {
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeProofCalldata_lift(_ buf: RustBuffer) throws -> ProofCalldata {
     return try FfiConverterTypeProofCalldata.lift(buf)
 }
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public func FfiConverterTypeProofCalldata_lower(_ value: ProofCalldata) -> RustBuffer {
     return FfiConverterTypeProofCalldata.lower(value)
 }
@@ -697,15 +773,16 @@ public enum MoproError {
 
     
     
-    case CircomError(message: String)
-    
-    case Halo2Error(message: String)
-    
-    case AshlangError(message: String)
-    
+    case CircomError(String
+    )
+    case Halo2Error(String
+    )
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 public struct FfiConverterTypeMoproError: FfiConverterRustBuffer {
     typealias SwiftType = MoproError
 
@@ -717,19 +794,13 @@ public struct FfiConverterTypeMoproError: FfiConverterRustBuffer {
 
         
         case 1: return .CircomError(
-            message: try FfiConverterString.read(from: &buf)
-        )
-        
+            try FfiConverterString.read(from: &buf)
+            )
         case 2: return .Halo2Error(
-            message: try FfiConverterString.read(from: &buf)
-        )
-        
-        case 3: return .AshlangError(
-            message: try FfiConverterString.read(from: &buf)
-        )
-        
+            try FfiConverterString.read(from: &buf)
+            )
 
-        default: throw UniffiInternalError.unexpectedEnumCase
+         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
@@ -739,20 +810,39 @@ public struct FfiConverterTypeMoproError: FfiConverterRustBuffer {
         
 
         
-        case .CircomError(_ /* message is ignored*/):
-            writeInt(&buf, Int32(1))
-        case .Halo2Error(_ /* message is ignored*/):
-            writeInt(&buf, Int32(2))
-        case .AshlangError(_ /* message is ignored*/):
-            writeInt(&buf, Int32(3))
-
         
+        case let .CircomError(v1):
+            writeInt(&buf, Int32(1))
+            FfiConverterString.write(v1, into: &buf)
+            
+        
+        case let .Halo2Error(v1):
+            writeInt(&buf, Int32(2))
+            FfiConverterString.write(v1, into: &buf)
+            
         }
     }
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMoproError_lift(_ buf: RustBuffer) throws -> MoproError {
+    return try FfiConverterTypeMoproError.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMoproError_lower(_ value: MoproError) -> RustBuffer {
+    return FfiConverterTypeMoproError.lower(value)
+}
+
+
 extension MoproError: Equatable, Hashable {}
+
+
 
 extension MoproError: Foundation.LocalizedError {
     public var errorDescription: String? {
@@ -760,6 +850,77 @@ extension MoproError: Foundation.LocalizedError {
     }
 }
 
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum ProofLib {
+    
+    case arkworks
+    case rapidsnark
+}
+
+
+#if compiler(>=6)
+extension ProofLib: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeProofLib: FfiConverterRustBuffer {
+    typealias SwiftType = ProofLib
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ProofLib {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .arkworks
+        
+        case 2: return .rapidsnark
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: ProofLib, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .arkworks:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .rapidsnark:
+            writeInt(&buf, Int32(2))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProofLib_lift(_ buf: RustBuffer) throws -> ProofLib {
+    return try FfiConverterTypeProofLib.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProofLib_lower(_ value: ProofLib) -> RustBuffer {
+    return FfiConverterTypeProofLib.lower(value)
+}
+
+
+extension ProofLib: Equatable, Hashable {}
+
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterSequenceString: FfiConverterRustBuffer {
     typealias SwiftType = [String]
 
@@ -781,76 +942,36 @@ fileprivate struct FfiConverterSequenceString: FfiConverterRustBuffer {
         return seq
     }
 }
-
-fileprivate struct FfiConverterDictionaryStringSequenceString: FfiConverterRustBuffer {
-    public static func write(_ value: [String: [String]], into buf: inout [UInt8]) {
-        let len = Int32(value.count)
-        writeInt(&buf, len)
-        for (key, value) in value {
-            FfiConverterString.write(key, into: &buf)
-            FfiConverterSequenceString.write(value, into: &buf)
-        }
-    }
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [String: [String]] {
-        let len: Int32 = try readInt(&buf)
-        var dict = [String: [String]]()
-        dict.reserveCapacity(Int(len))
-        for _ in 0..<len {
-            let key = try FfiConverterString.read(from: &buf)
-            let value = try FfiConverterSequenceString.read(from: &buf)
-            dict[key] = value
-        }
-        return dict
-    }
-}
-public func generateCircomProof(zkeyPath: String, circuitInputs: [String: [String]])throws  -> GenerateProofResult {
-    return try  FfiConverterTypeGenerateProofResult.lift(try rustCallWithError(FfiConverterTypeMoproError.lift) {
+public func generateCircomProof(zkeyPath: String, circuitInputs: String, proofLib: ProofLib)throws  -> GenerateProofResult  {
+    return try  FfiConverterTypeGenerateProofResult_lift(try rustCallWithError(FfiConverterTypeMoproError_lift) {
     uniffi_mopro_bindings_fn_func_generate_circom_proof(
         FfiConverterString.lower(zkeyPath),
-        FfiConverterDictionaryStringSequenceString.lower(circuitInputs),$0
+        FfiConverterString.lower(circuitInputs),
+        FfiConverterTypeProofLib_lower(proofLib),$0
     )
 })
 }
-public func generateHalo2Proof(srsPath: String, pkPath: String, circuitInputs: [String: [String]])throws  -> GenerateProofResult {
-    return try  FfiConverterTypeGenerateProofResult.lift(try rustCallWithError(FfiConverterTypeMoproError.lift) {
-    uniffi_mopro_bindings_fn_func_generate_halo2_proof(
-        FfiConverterString.lower(srsPath),
-        FfiConverterString.lower(pkPath),
-        FfiConverterDictionaryStringSequenceString.lower(circuitInputs),$0
-    )
-})
-}
-public func toEthereumInputs(inputs: Data) -> [String] {
+public func toEthereumInputs(inputs: Data) -> [String]  {
     return try!  FfiConverterSequenceString.lift(try! rustCall() {
     uniffi_mopro_bindings_fn_func_to_ethereum_inputs(
         FfiConverterData.lower(inputs),$0
     )
 })
 }
-public func toEthereumProof(proof: Data) -> ProofCalldata {
-    return try!  FfiConverterTypeProofCalldata.lift(try! rustCall() {
+public func toEthereumProof(proof: Data) -> ProofCalldata  {
+    return try!  FfiConverterTypeProofCalldata_lift(try! rustCall() {
     uniffi_mopro_bindings_fn_func_to_ethereum_proof(
         FfiConverterData.lower(proof),$0
     )
 })
 }
-public func verifyCircomProof(zkeyPath: String, proof: Data, publicInput: Data)throws  -> Bool {
-    return try  FfiConverterBool.lift(try rustCallWithError(FfiConverterTypeMoproError.lift) {
+public func verifyCircomProof(zkeyPath: String, proof: Data, publicInput: Data, proofLib: ProofLib)throws  -> Bool  {
+    return try  FfiConverterBool.lift(try rustCallWithError(FfiConverterTypeMoproError_lift) {
     uniffi_mopro_bindings_fn_func_verify_circom_proof(
         FfiConverterString.lower(zkeyPath),
         FfiConverterData.lower(proof),
-        FfiConverterData.lower(publicInput),$0
-    )
-})
-}
-public func verifyHalo2Proof(srsPath: String, vkPath: String, proof: Data, publicInput: Data)throws  -> Bool {
-    return try  FfiConverterBool.lift(try rustCallWithError(FfiConverterTypeMoproError.lift) {
-    uniffi_mopro_bindings_fn_func_verify_halo2_proof(
-        FfiConverterString.lower(srsPath),
-        FfiConverterString.lower(vkPath),
-        FfiConverterData.lower(proof),
-        FfiConverterData.lower(publicInput),$0
+        FfiConverterData.lower(publicInput),
+        FfiConverterTypeProofLib_lower(proofLib),$0
     )
 })
 }
@@ -862,37 +983,33 @@ private enum InitializationResult {
 }
 // Use a global variable to perform the versioning checks. Swift ensures that
 // the code inside is only computed once.
-private var initializationResult: InitializationResult = {
+private let initializationResult: InitializationResult = {
     // Get the bindings contract version from our ComponentInterface
-    let bindings_contract_version = 26
+    let bindings_contract_version = 29
     // Get the scaffolding contract version by calling the into the dylib
     let scaffolding_contract_version = ffi_mopro_bindings_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if (uniffi_mopro_bindings_checksum_func_generate_circom_proof() != 54365) {
+    if (uniffi_mopro_bindings_checksum_func_generate_circom_proof() != 57032) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mopro_bindings_checksum_func_generate_halo2_proof() != 3963) {
+    if (uniffi_mopro_bindings_checksum_func_to_ethereum_inputs() != 10288) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mopro_bindings_checksum_func_to_ethereum_inputs() != 64747) {
+    if (uniffi_mopro_bindings_checksum_func_to_ethereum_proof() != 23344) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mopro_bindings_checksum_func_to_ethereum_proof() != 64531) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mopro_bindings_checksum_func_verify_circom_proof() != 46591) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mopro_bindings_checksum_func_verify_halo2_proof() != 56128) {
+    if (uniffi_mopro_bindings_checksum_func_verify_circom_proof() != 51239) {
         return InitializationResult.apiChecksumMismatch
     }
 
     return InitializationResult.ok
 }()
 
-private func uniffiEnsureInitialized() {
+// Make the ensure init function public so that other modules which have external type references to
+// our types can call it.
+public func uniffiEnsureMoproBindingsInitialized() {
     switch initializationResult {
     case .ok:
         break
